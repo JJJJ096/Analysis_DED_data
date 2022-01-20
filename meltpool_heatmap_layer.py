@@ -2,10 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import filedialog as fd
-from melt_pool_3D_plot import Data_load
+from melt_pool_3D_plot import focas_load
 
-data = Data_load()
-
+data = focas_load()
 
 def meltpool_layer_ver1(data):
     resolution = 200
