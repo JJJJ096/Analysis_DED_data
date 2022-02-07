@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from melt_pool_3D_plot import Data_load
 import scipy as sp
 import scipy.stats
+from pyrometer.data_processing import focas, TDMs, save_csv_to_tdms, data_transform, temperature_per_layer
 
-data = Data_load()
+data = focas()
 print(data.describe())
 
 fig= plt.figure(figsize=(10,10))
