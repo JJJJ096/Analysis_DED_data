@@ -3,9 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-case_1 = pd.read_csv("C:/Users/KAMIC/Desktop/VScode/case1.txt", header=None, names=['0','time(s)','data', 'dt', 'PD', 'laser'], encoding='CP949', sep=' ')
-case_2 = pd.read_csv("C:/Users/KAMIC/Desktop/VScode/case2.txt", header=None, names=['0','time(s)','data', 'dt', 'PD', 'laser'], encoding='CP949', sep=' ')
-case_3 = pd.read_csv("C:/Users/KAMIC/Desktop/VScode/case3.txt", header=None, names=['0','time(s)','data', 'dt', 'PD', 'laser'], encoding='CP949', sep=' ')
+case_1 = pd.read_csv("C:/Users/KAMIC/Desktop/VScode/Analysis_DED_data/machine_noise/case1.txt", header=None, names=['0','time(s)','data', 'dt', 'PD', 'laser'], encoding='CP949', sep=' ')
+case_2 = pd.read_csv("C:/Users/KAMIC/Desktop/VScode/Analysis_DED_data/machine_noise/case2.txt", header=None, names=['0','time(s)','data', 'dt', 'PD', 'laser'], encoding='CP949', sep=' ')
+case_3 = pd.read_csv("C:/Users/KAMIC/Desktop/VScode/Analysis_DED_data/machine_noise/case3.txt", header=None, names=['0','time(s)','data', 'dt', 'PD', 'laser'], encoding='CP949', sep=' ')
 
 case_1 = case_1[['time(s)','PD', 'laser']]
 case_2 = case_2[['time(s)','PD', 'laser']]

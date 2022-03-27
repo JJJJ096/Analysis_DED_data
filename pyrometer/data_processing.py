@@ -301,12 +301,11 @@ def FFT(data, col_name=None):
         Example:
 
     """                
-    Ts = 10000
-    Fs = 1/Ts
+
+    Fs = 33
     L = len(data['{}'.format(col_name)])
 
     fft = np.fft.fft(data['{}'.format(col_name)]) / len(data['{}'.format(col_name)])
     #fft = 10000/ len(data['laser power'])
     fft_magnitude = abs(fft)
     return fft_magnitude
-

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from nptdms import TdmsFile
-from data_processing import focas, TDMs, save_csv_to_tdms, data_transform, temperature_per_layer
+from data_processing import focas, TDMs, save_csv_to_tdms, data_transform, temperature_per_layer,  moving_average
 
 plt.rcParams['font.family'] = 'Times New Roman' # 글꼴
 plt.rc('font', size=12)                         # 기본 폰트 크기
@@ -13,8 +13,33 @@ plt.rc('ytick', labelsize=12)                   # y축 눈금 폰트 크기
 plt.rc('legend', fontsize=12)                   # 범례 폰트 크기
 plt.rc('figure', titlesize=20)                  # figure title 폰트 크기
 
-def meltpool_temperature_spatial_3d_map(x, y, z, T, vmin=1200, vmax=2300, zmax=100, zmin=0):
+def MP_temperature_spatial_3d_map(x, y, z, T, vmin=1200, vmax=2300, zmax=100, zmin=0):
+    """Meltpool temperature spatial 3D map
 
+        실제 적층 중 발생하는 용융풀 온도를 공정 좌표와 동기화 하여 3D map으로 표현함
+
+        Parameters: x: pd.Series
+                        x position series data
+                    y: pd.Series
+                        y position series data
+                    z: pd.Series
+                        z position series data
+                    T: pd.Series
+                        Melt pool temperauter
+                    vmin: int
+                        viewport min 
+
+        Returns:    None
+                    plot :
+
+        
+        Requirment: pip install pands
+                    pip install matplotlib
+        
+        Example: 
+                    >>>data = focas()
+                    >>>MP_temperature_spatial_3d_map(data.x, data.y, data.z, data.T)
+    """
 
     fig = plt.figure(figsize=(12,10))
     ax = plt.gca(projection='3d')
@@ -26,15 +51,39 @@ def meltpool_temperature_spatial_3d_map(x, y, z, T, vmin=1200, vmax=2300, zmax=1
     #ax.grid(False)
     #ax.set_axis_off()
     # ax.set_frame_on(True)
-    # ax.set_xlim(0, 100)
-    # ax.set_ylim(0, 100)
-    ax.set_zlim(zmin, zmax)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 100)
+    ax.set_zlim(0, 100)
     fig.colorbar(sctt, ax=ax, shrink=0.7, aspect=10)
     ax.view_init(20, 90)                                        # 그래프 각도 view_init(z축, x-y축)
     plt.tight_layout()
     plt.show()
 
 def layer_bar(data, temp_min=1200, temp_max=2100):
+    """Average layer temperature
+
+        실제 적층 중 발생하는 용융풀 온도를 각 layer(z)의 평균 온도를 막대그래프로 표현
+
+        Parameters: data : pd.DataFrame
+
+                    temp_min : float
+                        그래프에 표현 될 최소 온도 값
+
+                    temp_max : float
+                        그래프에 표현 될 최대 온도 값
+
+        Returns:    None
+                    plot :
+
+        
+        Requirment: pip install pands
+                    pip install numpy
+                    pip install matplotlib
+        
+        Example: 
+                    >>>data = focas()
+                    >>>layer_bar(data)
+    """    
     layer_temp_mean, layer_temp_max = temperature_per_layer(data, 3)
 
     width = np.arange(0, 4.75, 0.15)
@@ -57,7 +106,26 @@ def layer_bar(data, temp_min=1200, temp_max=2100):
     plt.show()
 
 def time_series(data, sample_rate=33):
+    """pyrometer raw data time series
 
+        pyrometer로 수집한 데이터를 적층시간(x axis)에 따라 표현
+
+        Parameters: data : pd.DataFrame
+
+                    sample_rate : float (defalt : 33, 포카스 데이터 수집 속도)
+                        데이터 수집 속도, x 축 시간 계산에 사용
+
+        Returns:    None
+                    plot :
+
+        
+        Requirment: pip install pands
+                    pip install matplotlib
+        
+        Example: 
+                    >>>data = focas()
+                    >>>time_series(data)
+    """   
     fig = plt.figure(figsize=(12,8))
     
     plt.plot(data['T'].index/sample_rate, data['T'], color='r', linewidth='0.4')
@@ -73,6 +141,26 @@ def time_series(data, sample_rate=33):
     plt.show()
 
 def x_y_2D_scatter(data, z):
+    """x-y plane scatter plot
+
+        특정 layer의 온도를 x, y 좌표와 동기화 하여 표현
+
+        Parameters: data : pd.DataFrame
+
+                    z : float
+                        그래프에 나타 낼 z값, layer
+
+        Returns:    None
+                    plot :
+
+        
+        Requirment: pip install pands
+                    pip install matplotlib
+        
+        Example: 
+                    >>>data = focas()
+                    >>>x_y_3D_scatter(data, 0.25)
+    """   
     data=data.query('z=={}'.format(z))
     # print(data)
 
@@ -88,6 +176,24 @@ def x_y_2D_scatter(data, z):
     plt.show()
 
 def pdf_plot(data):
+    """probability density function
+
+        수집 한 데이터의 온도 분포의 확률 밀도 함수를 표현
+
+        Parameters: data : pd.DataFrame
+
+        Returns:    None
+                    plot :
+
+        
+        Requirment: pip install pands
+                    pip install sicpy
+                    pip install matplotlib
+        
+        Example: 
+                    >>>data = focas()
+                    >>>pdf_plot(data)
+    """   
     import scipy as sp
     import scipy.stats
     rv = sp.stats.norm(loc=data['T'].mean(), scale=data['T'].std())
@@ -99,7 +205,7 @@ def pdf_plot(data):
     plt.title('probability density function')
     plt.show()
 
-def visualization_data(data, layer_thickness=0.25, sample_rate=33, height=0.75):
+def visualization_data(data, layer_thickness=0.25, sample_rate=33, height=0):
     """DED monitoring data visualization
     
         DED 모니터링 데이터를 시각화 하기 위한 코드
@@ -108,24 +214,26 @@ def visualization_data(data, layer_thickness=0.25, sample_rate=33, height=0.75):
         Parameters: data: pd.DataFrame
                             focas or TDMs data, data must be include row(x,y,z,c,a,T)
 
-                        layer_thickness : = 0.25
+                        layer_thickness : float (default = 0.25)
                             데이터의 layer thickness  
 
-                        smaple_rate : = 33
+                        smaple_rate : float (default= 33)
                             데이터 수집 속도 (Hz)
 
-                        height :
-                            총 적층 높이 
+                        height : float (default = 0)
+                            x-y plane으로 나타낼 layer 높이
         
         Returns:    None
                     plot:
 
         
         Requirment: pip install pands
+                    pip install numpy
+                    pip install scipy
                     pip install matplotlib
         
         Example: 
-                    >>>
+                    >>>visualization_data(focas(), 0.25, 200, 12)
     """
     mean_layer_temp, max_layer_temp, layer_list= temperature_per_layer(data, max(data["z"]), layer_thickness)
 
@@ -189,7 +297,26 @@ def visualization_data(data, layer_thickness=0.25, sample_rate=33, height=0.75):
 
     plt.show()
 
-def xz_plane():
+def xy_plane():
+    """x-y plane plot
+
+        특정 layer의 온도 분포를 x-y 평면으로 표현
+        x y 좌표를 받아 각 좌표간 온도를 보간하여 heatmap 형태로 표현
+
+        Parameters: data : pd.DataFrame
+
+        Returns:    None
+                    plot :
+
+        
+        Requirment: pip install pands
+                    pip install itertools
+                    pip install matplotlib
+        
+        Example: 
+                    >>>
+                    >>>
+    """   
     load_file = "C:/Users/KAMIC/Desktop/VScode/repair_sleeve.csv"
     data = TDMs(load_file)
     xx, yy, zz = data_transform(data.x, data.y, data.z, data.c, data.a)
@@ -227,16 +354,44 @@ def xz_plane():
     plt.imshow(pivot, cmap='jet')
     plt.show()
 
+def xy_position(data):
 
+    fig = plt.figure()
+    
+    plt.scatter(data.x, data.y, c=data.index)
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.title("xy position")
+    plt.colorbar()
+    plt.tight_layout()
+    plt.show()
+
+def envelope(data, ):
+    """ 포락선 분석
+    """
+    ma = moving_average(data, 5, "T")
+    print(ma)
+    envelope_up = ma + (ma * 0.1)
+    envelope_dn = ma - (ma * 0.1)
+
+    plt.plot(data.index/10000, data['T'], color='r', label="MP_temperature", linewidth=0.3)
+    
+    plt.plot(data.index/10000, ma, color='b', label= "Moving average", linewidth=0.2)
+    plt.plot(data.index/10000, envelope_up, color='gray', label= "Envelop Up", linewidth=0.2)
+    plt.plot(data.index/10000, envelope_dn, color='gray', label= "Envelop Down", linewidth=0.2)
+    plt.legend()
+    plt.show()
 
 if __name__ =='__main__':
     ## user input ##
     # import time
     # load_file = "C:/Users/KAMIC/Desktop/VScode/repair_sleeve.csv"
     # data = TDMs(load_file)
+    data =focas()
+    visualization_data(data)
     # xx, yy, zz = data_transform(data.x, data.y, data.z, data.c, data.a)
 
-    # meltpool_temperature_spatial_3d_map(xx, yy, zz, data['T'])
+    # MP_temperature_spatial_3d_map(xx, yy, zz, data['T'], vmin=700, vmax=2300)
     # print("Melt pool temerature analysis ver.1")
     # time.sleep(1)
     # print("1. Select your focas data!")
@@ -245,8 +400,8 @@ if __name__ =='__main__':
     # sample_rate = float(input("Sample rate(Hz) : "))
     # height = float(input("insert x axis height(mm) to drawing x-y plane : "))
     # print("wait a few second..........")
-    print(visualization_data.__doc__)
 
     # pdf_plot(data)
     # xz_plane()
-
+    # xy_position(focas())
+    # envelope(data)
